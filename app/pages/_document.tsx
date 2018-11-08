@@ -26,7 +26,12 @@ export default class extends Document<{
         <Head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-          <meta name="robots" content="noindex" />
+          <meta name="robots" content="index" />
+
+          <meta
+            name="description"
+            content="Get the time between any two dates"
+          />
 
           <link
             rel="stylesheet"

@@ -44,7 +44,7 @@ export default compose<TInner, { [key: string]: any }>(
       }
 
       return {
-        title: hours ? msg : `Easily get the hours between two dates`
+        title: hours ? msg : `Calculate time between two dates`
       }
     }
   ),
@@ -52,7 +52,7 @@ export default compose<TInner, { [key: string]: any }>(
 )(({ theme, title, result: { dates, msg }, ...props }) => (
   <>
     <Head>
-      <title key="title">{title} | hoursBetween</title>
+      <title key="title">{title} | timeBetween</title>
     </Head>
 
     <Result
