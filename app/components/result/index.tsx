@@ -38,7 +38,7 @@ export default compose<TInner, { [key: string]: any }>(
         )
 
         worker.postMessage({
-          hours: hours ? Math.min(250, hours) : 0,
+          hours: Math.min(250, hours || 0),
           width: window.innerWidth
         })
       }
