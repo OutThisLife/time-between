@@ -1,154 +1,69 @@
-import nlp from 'compromise'
+import Capture from '@/components/capture'
+import FX from '@/components/fx'
 import dayjs from 'dayjs'
-import { defaultTheme, Icon, Pane, Text, TextInput } from 'evergreen-ui'
+import { Pane } from 'evergreen-ui'
+import { RouterProps, withRouter } from 'next/router'
 import {
   compose,
-  onlyUpdateForKeys,
   setDisplayName,
   StateHandler,
   StateHandlerMap,
-  withHandlers,
-  withStateHandlers
+  withHandlers
 } from 'recompose'
+import { ThemeProps } from 'styled-components'
 
-interface IState {
-  result: string
+export interface ResultProps {
+  result: {
+    msg: string | number
+    dates: dayjs.Dayjs[]
+  }
 }
 
-interface IStateHandlers extends StateHandlerMap<IState> {
-  getResult: StateHandler<IState>
+interface TStateHandlers<T> extends StateHandlerMap<T> {
+  getResult: StateHandler<T>
 }
 
-export default compose<IState & IStateHandlers, {}>(
+interface TInner extends ResultProps, ThemeProps<any> {
+  router: RouterProps
+}
+
+export default compose<TInner & TStateHandlers<ResultProps>, {}>(
   setDisplayName('index'),
-  withStateHandlers(
-    { result: '' },
-    {
-      getResult: () => ({
-        target: { value }
-      }: React.ChangeEvent<HTMLInputElement>) => {
-        localStorage.setItem('LAST_INPUT', value)
-
-        const doc: any[] = nlp(value)
-          .dates()
-          .data()
-
-        const dates = doc.reduce(
-          (acc, { date }) => acc.push(iter(date)) && acc,
-          []
-        )
-
-        if (dates.length === 2) {
-          return {
-            result: `${Math.abs(
-              dates[0].diff(dates[1], 'hour', true)
-            ).toLocaleString()} hours`
-          }
-        }
-
-        return { result: '' }
-      }
-    }
-  ),
+  withRouter,
   withHandlers(() => ({
-    onRef: ({ getResult }) => (ref: HTMLElement) => {
-      if (!ref) {
+    onRef: ({ router: { query } }) => () => {
+      if (!('browser' in process)) {
         return
       }
 
-      const $input = ref.querySelector('input')
-      const lastInput = localStorage.getItem('LAST_INPUT')
+      const $input = document.getElementById('query') as HTMLInputElement
 
-      window.addEventListener(
-        'keydown',
-        () => document.activeElement !== $input && $input.focus()
-      )
+      window.addEventListener('keydown', e => {
+        if (document.activeElement === $input) {
+          return
+        } else if (e.keyCode === 9) {
+          e.preventDefault()
+        }
 
-      if (lastInput) {
-        $input.placeholder = lastInput
-        getResult({ target: { value: lastInput } })
+        $input.focus()
+      })
+
+      if ('q' in query) {
+        $input.defaultValue = query.q
       }
     }
-  })),
-  onlyUpdateForKeys(['result'])
-)(({ onRef, getResult, result }) => (
+  }))
+)(({ onRef }) => (
   <Pane
     innerRef={onRef}
-    display="flex"
-    alignItems="center"
+    is="main"
+    display="grid"
+    gridTemplateColumns="repeat(40, 1fr)"
+    gridTemplateRows="min-content min-content"
+    gridRowGap="calc(var(--scale) * 2)"
     justifyContent="center"
-    minHeight="100vh"
-    background={defaultTheme.scales.blue.B1}>
-    <Pane is="form" width="100%" paddingX="2.5vmax">
-      <Icon
-        zIndex={0}
-        position="absolute"
-        top="50%"
-        left="50%"
-        transform="translate(-50%, -50%)"
-        icon="time"
-        size="70vw"
-        color={defaultTheme.scales.blue.B5}
-        opacity={0.08}
-      />
-
-      <TextInput
-        zIndex={1}
-        position="relative"
-        autoFocus
-        tabIndex={1}
-        id="query"
-        name="query"
-        placeholder="yesterday 5am and today 6pm"
-        fontSize="2vmax"
-        width="100%"
-        height="auto"
-        paddingX="5vmax"
-        paddingY="1.5vmax"
-        marginBottom="5vmax"
-        textAlign="center"
-        textTransform="lowercase"
-        autoComplete="off"
-        background={defaultTheme.scales.neutral.N1}
-        onChange={getResult}
-      />
-
-      <Text
-        zIndex={1}
-        position="relative"
-        is="h1"
-        display="block"
-        color={
-          result ? defaultTheme.scales.blue.B6 : defaultTheme.scales.blue.B4
-        }
-        fontWeight={400}
-        fontStyle="italic"
-        fontSize="3vmax"
-        textAlign="center"
-        textTransform="lowercase"
-        transition="0.2s ease-in-out">
-        {result || 'Waiting for query'}
-      </Text>
-    </Pane>
+    height="100vh">
+    <FX />
+    <Capture />
   </Pane>
 ))
-
-const iter = (obj: object, t = dayjs()) => {
-  const entries = Object.entries(obj).filter(
-    ([k, v]) => v && !['timezone', 'logic'].includes(k)
-  ) as Array<[dayjs.UnitType, number | string]>
-
-  for (const [k, v] of entries) {
-    if (v === 'yesterday') {
-      t = t.subtract(1, 'day')
-    } else if (v === 'tomorrow') {
-      t = t.add(1, 'day')
-    } else if (typeof v === 'number') {
-      t = t.set(k, v)
-    } else if (typeof v === 'object') {
-      t = iter(v, t)
-    }
-  }
-
-  return t
-}

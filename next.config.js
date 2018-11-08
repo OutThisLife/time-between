@@ -52,12 +52,6 @@ const config = {
     })
 
     return config
-  },
-
-  exportPathMap() {
-    return {
-      '/': { page: '/' }
-    }
   }
 }
 
