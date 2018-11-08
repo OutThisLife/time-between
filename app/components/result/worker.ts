@@ -9,7 +9,7 @@ interface Payload {
 }
 
 export const worker: Worker =
-  typeof window !== 'undefined' &&
+  typeof 'browser' in process &&
   spawn(function(this: Worker) {
     let lastLen = 0
     const res = []
@@ -34,14 +34,11 @@ export const worker: Worker =
       }
 
       lastLen = hours
-      this.postMessage({
-        res,
-        hours
-      })
+      this.postMessage({ res, hours })
     }
   })
 
 export const isWorkerReady = () =>
-  typeof window !== 'undefined' && worker instanceof Worker
+  typeof 'browser' in process && worker instanceof Worker
 
 export default worker
