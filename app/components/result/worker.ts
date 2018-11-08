@@ -9,7 +9,7 @@ interface Payload {
 }
 
 export const worker: Worker =
-  typeof 'browser' in process &&
+  'browser' in process &&
   spawn(function(this: Worker) {
     let lastLen = 0
     const res = []
@@ -39,6 +39,6 @@ export const worker: Worker =
   })
 
 export const isWorkerReady = () =>
-  typeof 'browser' in process && worker instanceof Worker
+  'browser' in process && worker instanceof Worker
 
 export default worker
