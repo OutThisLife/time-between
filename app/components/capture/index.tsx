@@ -46,8 +46,7 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
       gridColumn="1 / -1"
       width="100%"
       height="100%"
-      maxWidth="1600px"
-      marginX="auto"
+      fontSize="var(--scale)"
       onChange={({ currentTarget }) =>
         'browser' in process && getResult(currentTarget.q.value)
       }>
@@ -60,11 +59,12 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}
-        fontSize="calc(var(--scale) / 1.15)"
         width="100%"
         height="auto"
+        fontSize="1.5em"
         paddingTop="calc(40vh - 1em)"
         paddingBottom="1.33vmax"
+        paddingX={15}
         textAlign="center"
         textTransform="lowercase"
         borderRadius={0}
@@ -76,7 +76,6 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
       gridRow={2}
       gridColumn="1 / -1"
       alignSelf="flex-start"
-      fontSize="var(--scale)"
       padding={25}
     />
   </>

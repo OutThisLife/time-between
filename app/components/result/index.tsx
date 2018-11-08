@@ -24,8 +24,8 @@ export default compose<TInner, { [key: string]: any }>(
   setDisplayName('result-handler'),
   getContext({ result: any }),
   withPropsOnChange(
-    () => true,
-    ({ result: { dates, msg } }) => {
+    ({ result }, { result: nextResult }) => result.hours !== nextResult.hours,
+    ({ result: { msg, hours } }) => {
       if ('browser' in process) {
         const { value } = document.getElementById('query') as HTMLInputElement
 
@@ -38,41 +38,44 @@ export default compose<TInner, { [key: string]: any }>(
         )
 
         worker.postMessage({
-          hours: Math.min(
-            255,
-            dates.length ? parseInt(msg.replace(/\D+/g, ''), 10) : 0
-          ),
+          hours: hours ? Math.min(250, hours) : 0,
           width: window.innerWidth
         })
       }
 
       return {
-        title: dates.length ? msg : `Easily get the hours between two dates`
+        title: hours ? msg : `Easily get the hours between two dates`
       }
     }
   ),
   withTheme
-)(({ title, theme: { scales }, result: { dates, msg }, ...props }) => (
+)(({ theme, title, result: { dates, msg }, ...props }) => (
   <>
     <Head>
       <title key="title">{title} | hoursBetween</title>
     </Head>
 
     <Result
-      zIndex={1}
-      color={dates.length ? scales.blue.B6 : scales.blue.B4}
+      id="result"
       fontWeight={400}
       lineHeight={1.75}
       textAlign="center"
+      fontSize="var(--scale)"
       textTransform="lowercase"
       {...props}>
       {dates.length ? (
         <>
           <SubText>there are</SubText>
-          <Text fontSize="inherit">{msg}</Text>
+          <Text
+            fontSize="1.5em"
+            lineHeight={2}
+            fontWeight={700}
+            color={theme.palette.neutral.dark}>
+            {msg}
+          </Text>
           <SubText>between</SubText>
 
-          <SubText opacity={1}>
+          <SubText>
             {dates.map(d => (
               <time key={d.valueOf()} title={d.format()}>
                 {dfmt(d)}
@@ -88,13 +91,7 @@ export default compose<TInner, { [key: string]: any }>(
 ))
 
 const SubText = ({ children, ...props }) => (
-  <Text
-    is="p"
-    opacity={0.66}
-    color="inherit"
-    fontSize="0.75em"
-    fontWeight={100}
-    {...props}>
+  <Text is="p" opacity={0.5} fontSize="0.75em" color="inherit" {...props}>
     {children}
   </Text>
 )

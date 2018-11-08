@@ -19,14 +19,14 @@ interface Payload {
 export default compose<TInner, {}>(
   setDisplayName('fx'),
   withTheme,
-  withHandlers(({ theme: { scales } }) => ({
+  withHandlers(({ theme: { palette } }) => ({
     onRef: () => () => {
       let tm
 
       const cv = document.getElementById('fx') as HTMLCanvasElement
       const ctx = cv.getContext('2d')
 
-      ctx.fillStyle = scales.neutral.N4
+      ctx.fillStyle = palette.purple.light
 
       worker.onmessage = ({ data: { res, hours } }: Payload) => {
         clearTimeout(tm)

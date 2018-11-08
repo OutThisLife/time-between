@@ -15,6 +15,7 @@ import { ThemeProps } from 'styled-components'
 
 export interface ResultProps {
   result: {
+    hours: number
     msg: string | number
     dates: dayjs.Dayjs[]
   }

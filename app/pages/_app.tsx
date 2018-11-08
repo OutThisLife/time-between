@@ -22,7 +22,7 @@ export default class extends App {
 }
 
 const GlobalStyles = createGlobalStyle`
-  ${({ theme: { scales } }: any) => css`
+  ${({ theme: { scales, palette } }: any) => css`
     * {
       box-sizing: border-box;
 
@@ -39,21 +39,21 @@ const GlobalStyles = createGlobalStyle`
     body {
       --scale: 2.5vmax;
       background: ${scales.blue.B1};
+
+      @media (min-width: 1600px) {
+        --scale: 1.5vmax;
+      }
     }
 
     input[type] {
-      color: ${scales.blue.B7};
       border: 0;
-      border-bottom: 4px dashed ${scales.neutral.N4};
+      color: ${palette.purple.dark};
+      border-bottom: 4px dashed ${palette.purple.light};
       box-shadow: none !important;
       background: none;
 
-      &:not(:focus) {
-        color: ${scales.blue.B7};
-      }
-
       &::placeholder {
-        color: ${scales.blue.B4};
+        color: ${palette.purple.dark};
       }
     }
   `})}
