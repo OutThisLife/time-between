@@ -1,5 +1,5 @@
 import Result from '@/components/result'
-import { parseUserQuery } from '@/lib/utils'
+import { getQuery, parseUserQuery } from '@/lib/utils'
 import dayjs from 'dayjs'
 import { Pane, TextInput } from 'evergreen-ui'
 import { RouterProps, withRouter } from 'next/router'
@@ -33,8 +33,7 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
   setDisplayName('capture'),
   withRouter,
   withStateHandlers(
-    ({ router: { query } }: TInner) =>
-      parseUserQuery((query.q as string) || ''),
+    ({ router: { query } }: TInner) => parseUserQuery(getQuery(query)),
     { getResult: () => (value: string) => parseUserQuery(value) }
   ),
   withContext({ result: any }, ({ result }) => ({ result }))

@@ -7,31 +7,7 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 const plugins = [
   withCSS,
   typescript,
-  [
-    offline,
-    {
-      workboxOpts: {
-        runtimeCaching: [
-          {
-            urlPattern: /^https?.*/,
-            handler: 'networkFirst',
-            options: {
-              cacheName: 'https-calls',
-              networkTimeoutSeconds: 15,
-              expiration: {
-                maxEntries: 150,
-                maxAgeSeconds: 30 * 24 * 60 * 60
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
-      }
-    },
-    ['!', PHASE_DEVELOPMENT_SERVER]
-  ]
+  [offline, ['!', PHASE_DEVELOPMENT_SERVER]]
 ]
 
 const config = {

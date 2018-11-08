@@ -1,5 +1,6 @@
 import Capture from '@/components/capture'
 import FX from '@/components/fx'
+import { getQuery } from '@/lib/utils'
 import dayjs from 'dayjs'
 import { Pane } from 'evergreen-ui'
 import { RouterProps, withRouter } from 'next/router'
@@ -48,9 +49,7 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
         $input.focus()
       })
 
-      if ('q' in query) {
-        $input.defaultValue = query.q
-      }
+      $input.defaultValue = getQuery(query)
     }
   }))
 )(({ onRef }) => (

@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "next ./app",
-    "start": "next start ./app",
-    "build": "next build ./app",
+    "start": "serve ./app/out",
+    "build": "next build ./app && next export ./app",
     "postinstall": "[ $NODE_ENV = production ] && npm run build || exit 0"
   },
   "dependencies": {

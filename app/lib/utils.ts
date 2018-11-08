@@ -55,5 +55,12 @@ export const parseUserQuery = (value: string): ResultProps => {
   return { result }
 }
 
+export const getQuery = (query: any): string =>
+  (query.q as string) ||
+  ('browser' in process &&
+    /q=/.test(location.search) &&
+    decodeURIComponent(location.search.split('?q=')[1])) ||
+  ''
+
 export const spawn = (fn: () => any): Worker =>
   new Worker(URL.createObjectURL(new Blob([`(${fn})()`])))
