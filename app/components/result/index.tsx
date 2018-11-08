@@ -38,7 +38,10 @@ export default compose<TInner, { [key: string]: any }>(
         )
 
         worker.postMessage({
-          hours: dates.length ? parseInt(msg.replace(/\D+/g, ''), 10) : 0,
+          hours: Math.min(
+            255,
+            dates.length ? parseInt(msg.replace(/\D+/g, ''), 10) : 0
+          ),
           width: window.innerWidth
         })
       }
