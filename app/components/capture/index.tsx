@@ -1,15 +1,18 @@
 import Result, { ResultProps } from '@/components/result'
-import { getQuery, parseUserQuery } from '@/lib/utils'
 import { Pane, TextInput } from 'evergreen-ui'
 import { RouterProps, withRouter } from 'next/router'
+import { arrayOf, object, string } from 'prop-types'
 import {
   compose,
   setDisplayName,
   StateHandler,
   StateHandlerMap,
+  withContext,
   withStateHandlers
 } from 'recompose'
 import { ThemeProps } from 'styled-components'
+
+import { getQuery, parseUserQuery } from './utils'
 
 interface TStateHandlers<T> extends StateHandlerMap<T> {
   getResult: StateHandler<T>
@@ -25,8 +28,12 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
   withStateHandlers(
     ({ router: { query } }: TInner) => parseUserQuery(getQuery(query)),
     { getResult: () => (value: string) => parseUserQuery(value) }
+  ),
+  withContext(
+    { dates: arrayOf(object), value: string },
+    ({ dates, value }) => ({ dates, value })
   )
-)(({ dates, getResult }) => (
+)(({ getResult }) => (
   <>
     <Pane
       is="form"
@@ -76,7 +83,8 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
       gridColumn="1 / -1"
       alignSelf="flex-start"
       padding={25}
-      dates={dates}
     />
   </>
 ))
+
+export { parseUserQuery }

@@ -1,4 +1,5 @@
-import { spawn } from '@/lib/utils'
+export const spawn = (fn: () => any): Worker =>
+  new Worker(URL.createObjectURL(new Blob([`(${fn})()`])))
 
 interface Payload {
   data: {

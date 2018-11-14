@@ -1,6 +1,6 @@
 import Capture from '@/components/capture'
+import { getQuery } from '@/components/capture/utils'
 import FX from '@/components/fx'
-import { getQuery } from '@/lib/utils'
 import { Pane } from 'evergreen-ui'
 import { RouterProps, withRouter } from 'next/router'
 import { compose, setDisplayName, withHandlers } from 'recompose'
