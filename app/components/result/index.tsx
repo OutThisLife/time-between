@@ -1,19 +1,21 @@
-import { dfmt } from '@/lib/utils'
-import { ResultProps } from '@/pages'
+import { dfmt, dmsg } from '@/lib/utils'
 import * as d3 from 'd3-timer'
+import dayjs from 'dayjs'
 import { Text } from 'evergreen-ui'
 import Head from 'next/head'
-import { any } from 'prop-types'
 import {
   compose,
-  getContext,
   setDisplayName,
+  shallowEqual,
   withPropsOnChange
 } from 'recompose'
 import { ThemeProps, withTheme } from 'styled-components'
 
 import Result from './style'
-import worker from './worker'
+
+export interface ResultProps {
+  dates: dayjs.Dayjs[]
+}
 
 interface TInner extends ThemeProps<any>, ResultProps {
   title: string
@@ -22,38 +24,37 @@ interface TInner extends ThemeProps<any>, ResultProps {
 
 export default compose<TInner, { [key: string]: any }>(
   setDisplayName('result-handler'),
-  getContext({ result: any }),
+  withTheme,
   withPropsOnChange(
-    ({ result }, { result: nextResult }) => result.hours !== nextResult.hours,
-    ({ result: { msg, hours } }) => {
-      if ('browser' in process) {
-        const { value } = document.getElementById('query') as HTMLInputElement
+    ({ dates }, { dates: nextDates }) => !shallowEqual(dates, nextDates),
+    ({ dates = [] }) => {
+      if (!('browser' in process)) {
+        return
+      }
 
-        d3.timeout(() =>
-          history.replaceState(
-            null,
-            null,
-            value.length ? `?q=${encodeURIComponent(value)}` : ''
-          )
+      d3.timeout(() =>
+        window.dispatchEvent(
+          new CustomEvent('pixels', {
+            detail: dates
+          })
         )
-
-        worker.postMessage({
-          hours: Math.min(250, hours || 0),
-          width: window.innerWidth
-        })
-      }
-
-      return {
-        title: hours ? msg : `Calculate time between two dates`
-      }
+      )
     }
-  ),
-  withTheme
-)(({ theme, title, result: { dates, msg }, ...props }) => (
+  )
+)(({ theme: { palette }, dates, ...props }) => (
   <>
-    <Head>
-      <title key="title">{title} | timeBetween</title>
-    </Head>
+    {dates.length ? (
+      <Head>
+        <meta
+          key="description"
+          name="description"
+          content={`
+          There are ${dmsg(dates, ', ')} between ${dfmt(dates[0])}
+          and ${dfmt(dates[1])}.
+          `}
+        />
+      </Head>
+    ) : null}
 
     <Result
       id="result"
@@ -70,8 +71,8 @@ export default compose<TInner, { [key: string]: any }>(
             fontSize="1.5em"
             lineHeight={2}
             fontWeight={700}
-            color={theme.palette.neutral.dark}>
-            {msg}
+            color={palette.neutral.dark}>
+            {dmsg(dates)}
           </Text>
           <SubText>between</SubText>
 
@@ -84,7 +85,7 @@ export default compose<TInner, { [key: string]: any }>(
           </SubText>
         </>
       ) : (
-        msg
+        'waiting for query'
       )}
     </Result>
   </>

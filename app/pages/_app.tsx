@@ -2,6 +2,7 @@ import '../static/styles.css'
 
 import { defaultTheme } from 'evergreen-ui'
 import App, { Container } from 'next/app'
+import Head from 'next/head'
 import { createGlobalStyle, css, ThemeProvider } from 'styled-components'
 
 export default class extends App {
@@ -12,6 +13,12 @@ export default class extends App {
       <Container>
         <ThemeProvider theme={defaultTheme}>
           <>
+            <Head>
+              <title key="title">
+                Ask Chronos how much time is between two dates
+              </title>
+            </Head>
+
             <GlobalStyles />
             <Component {...pageProps} />
           </>

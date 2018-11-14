@@ -1,35 +1,17 @@
 import Capture from '@/components/capture'
 import FX from '@/components/fx'
 import { getQuery } from '@/lib/utils'
-import dayjs from 'dayjs'
 import { Pane } from 'evergreen-ui'
 import { RouterProps, withRouter } from 'next/router'
-import {
-  compose,
-  setDisplayName,
-  StateHandler,
-  StateHandlerMap,
-  withHandlers
-} from 'recompose'
+import { compose, setDisplayName, withHandlers } from 'recompose'
 import { ThemeProps } from 'styled-components'
 
-export interface ResultProps {
-  result: {
-    hours: number
-    msg: string | number
-    dates: dayjs.Dayjs[]
-  }
-}
-
-interface TStateHandlers<T> extends StateHandlerMap<T> {
-  getResult: StateHandler<T>
-}
-
-interface TInner extends ResultProps, ThemeProps<any> {
+interface TInner extends ThemeProps<any> {
+  onRef: () => void
   router: RouterProps
 }
 
-export default compose<TInner & TStateHandlers<ResultProps>, {}>(
+export default compose<TInner, {}>(
   setDisplayName('index'),
   withRouter,
   withHandlers(() => ({
@@ -61,8 +43,7 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
     gridTemplateColumns="repeat(40, 1fr)"
     gridTemplateRows="min-content min-content"
     gridRowGap="calc(var(--scale) * 2)"
-    justifyContent="center"
-    height="100vh">
+    justifyContent="center">
     <FX />
     <Capture />
   </Pane>

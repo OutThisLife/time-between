@@ -1,25 +1,15 @@
-import Result from '@/components/result'
+import Result, { ResultProps } from '@/components/result'
 import { getQuery, parseUserQuery } from '@/lib/utils'
-import dayjs from 'dayjs'
 import { Pane, TextInput } from 'evergreen-ui'
 import { RouterProps, withRouter } from 'next/router'
-import { any } from 'prop-types'
 import {
   compose,
   setDisplayName,
   StateHandler,
   StateHandlerMap,
-  withContext,
   withStateHandlers
 } from 'recompose'
 import { ThemeProps } from 'styled-components'
-
-export interface ResultProps {
-  result: {
-    msg: string | number
-    dates: dayjs.Dayjs[]
-  }
-}
 
 interface TStateHandlers<T> extends StateHandlerMap<T> {
   getResult: StateHandler<T>
@@ -35,9 +25,8 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
   withStateHandlers(
     ({ router: { query } }: TInner) => parseUserQuery(getQuery(query)),
     { getResult: () => (value: string) => parseUserQuery(value) }
-  ),
-  withContext({ result: any }, ({ result }) => ({ result }))
-)(({ getResult }) => (
+  )
+)(({ dates, getResult }) => (
   <>
     <Pane
       is="form"
@@ -47,9 +36,19 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
       width="100%"
       height="100%"
       fontSize="var(--scale)"
-      onChange={({ currentTarget }) =>
-        'browser' in process && getResult(currentTarget.q.value)
-      }>
+      onChange={({
+        currentTarget: {
+          q: { value }
+        }
+      }) => {
+        getResult(value)
+
+        history.replaceState(
+          null,
+          null,
+          value.length ? `?q=${encodeURIComponent(value)}` : ''
+        )
+      }}>
       <TextInput
         autoFocus
         tabIndex={1}
@@ -77,6 +76,7 @@ export default compose<TInner & TStateHandlers<ResultProps>, {}>(
       gridColumn="1 / -1"
       alignSelf="flex-start"
       padding={25}
+      dates={dates}
     />
   </>
 ))
