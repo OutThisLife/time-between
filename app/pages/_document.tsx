@@ -46,6 +46,20 @@ export default class extends Document<{
           <Main />
           {hydrationScript}
           <NextScript />
+
+          <script
+            key="ga-tag"
+            src="https://www.googletagmanager.com/gtag/js?id=UA-10405648-10"
+            async
+          />
+
+          <script
+            key="ga-snippet"
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'UA-10405648-10');`
+            }}
+          />
         </body>
       </html>
     )
