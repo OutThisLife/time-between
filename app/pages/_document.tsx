@@ -33,6 +33,8 @@ export default class extends Document<{
             content="Get the time between any two dates"
           />
 
+          <link rel="shortcut icon" href="/static/favicon.ico" />
+
           <link
             rel="stylesheet"
             href="//cdn.jsdelivr.net/npm/normalize.css@8.0.0/normalize.min.css"

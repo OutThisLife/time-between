@@ -10,12 +10,13 @@ interface TInner {
 }
 
 interface Point {
-  fill: string
-  stroke: string
+  opacity: number
+  hue: number
   x: number
   y: number
-  s: number
-  tl?: () => anime.AnimeInstance
+  r: number
+  vx: number
+  vy: number
 }
 
 let timer
@@ -23,68 +24,53 @@ let timer
 export default compose<TInner, {}>(
   setDisplayName('fx'),
   withTheme,
-  withHandlers(({ theme: { scales, palette } }) => ({
+  withHandlers(() => ({
     onRef: () => () => {
       const cv = document.getElementById('fx') as HTMLCanvasElement
       const ctx = cv.getContext('2d')
 
       const points: Point[] = []
-      const pW = 5
-      const pD = Math.floor(pW * 0.3)
 
-      const rand = (i: number) =>
-        Math.PI * Math.random() * i - Math.sin(i) + i + 1
-
-      const genX = (i: number) =>
-        rand(pW + (i % (window.innerWidth / pW / 2)) * pW + pD)
-
-      const genY = (i: number) =>
-        rand(pW + Math.floor(i / (window.innerHeight / pW / pW)) * pW + pD)
-
-      const getCoords = (i: number): Point => {
-        const generate = (
-          fill: boolean = Math.random() < 0.5,
-          stroke: boolean = !fill
-        ): Point => ({
-          x: genX(i),
-          y: genY(i),
-          s: anime.random(pW / 1.3, pW),
-          fill: !fill ? scales.neutral.N1 : palette.purple.base,
-          stroke: !stroke ? scales.neutral.N1 : palette.purple.base
-        })
-
-        const point = {
-          ...generate(),
-          tl: () =>
-            anime({
-              targets: point,
-              duration: anime.random(5e3, 10e4),
-              easing: 'easeInOutCubic',
-              ...generate(),
-              complete: () => point.tl()
-            })
-        }
-
-        return point
-      }
+      const getCoords = (i: number): Point => ({
+        opacity: Math.random(),
+        x: anime.random(cv.clientWidth * Math.random(), i % cv.clientWidth),
+        y: anime.random(cv.clientHeight * Math.random(), i % cv.clientHeight),
+        r: anime.random(2, 4),
+        vx: anime.random(0.1, 2) * (Math.random() > 0.66 ? -1 : 1),
+        vy: anime.random(0.1, 2) * (Math.random() > 0.55 ? -1 : 1),
+        hue: Math.trunc(360 / 1.5)
+      })
 
       const draw = () => {
-        cv.width = window.innerWidth
-        cv.height = window.innerHeight
+        cv.width = cv.clientWidth
+        cv.height = cv.clientHeight
+
+        ctx.clearRect(0, 0, cv.clientWidth, cv.clientHeight)
 
         for (let i = 0, l = points.length; i < l; i++) {
-          const { fill, stroke, x, y, s } = points[i]
+          if (points[i].x > cv.clientWidth || points[i].x < -20) {
+            points[i].vx *= -1
+          }
 
-          ctx.fillStyle = fill
-          ctx.strokeStyle = stroke
+          if (points[i].y > cv.clientHeight || points[i].y < -20) {
+            points[i].vy *= -1
+          }
+
+          points[i].x += points[i].vx / 4
+          points[i].y -= points[i].vy / 4
 
           ctx.beginPath()
-          ctx.arc(x, y, s / 2, 0, pW * 2, false)
-          ctx.lineWidth = 1
+
+          ctx.globalAlpha = points[i].opacity
+          ctx.fillStyle = 'hsl(' + points[i].hue + ', 100%, 97%)'
+          ctx.strokeStyle = 'hsl(' + points[i].hue + ', 100%, 90%)'
+          ctx.arc(points[i].x, points[i].y, points[i].r, 0, Math.PI * 2)
 
           ctx.fill()
           ctx.stroke()
         }
+
+        ctx.shadowBlur = 0
       }
 
       if (typeof timer === 'object') {
@@ -100,7 +86,10 @@ export default compose<TInner, {}>(
             return
           }
 
-          const h = Math.abs(end.diff(start, 'hour'))
+          const h = Math.min(
+            3e4 / navigator.hardwareConcurrency,
+            Math.abs(end.diff(start, 'hour'))
+          )
 
           while (h < points.length) {
             points.pop()
@@ -109,7 +98,6 @@ export default compose<TInner, {}>(
           for (let i = points.length; i < h; i++) {
             const p = getCoords(i)
             points.push(p)
-            p.tl()
           }
         }
       )
@@ -124,10 +112,9 @@ export default compose<TInner, {}>(
       pointerEvents: 'none',
       position: 'fixed',
       top: 0,
-      right: 0,
-      bottom: 0,
       left: 0,
-      filter: 'blur(1px)'
+      width: 'auto',
+      height: '100vh'
     }}
   />
 ))
